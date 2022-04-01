@@ -1,0 +1,11 @@
+version: '2'
+services:
+  rtls_api_manager:
+    container_name: rtls_api_manager
+    image:  mibburo/rtls_api_manager:rtls_api_manager
+    expose:
+      - 7001
+    ports:
+      - 7001:7001
+    environment:
+      - KEY=secret
