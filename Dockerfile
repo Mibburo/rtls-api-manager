@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11:latest
+FROM aadoptopenjdk/openjdk15:ubi
 MAINTAINER Kon Bi
 VOLUME /tmp
 ADD ./target/rtls.api.manager-1.0.0.jar  app.jar
