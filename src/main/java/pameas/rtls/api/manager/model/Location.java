@@ -24,6 +24,7 @@ public class Location {
     private String geofenceId;
     private List<String> geofenceNames;
     private String timestamp;
+    private String deck;
 
     @JsonProperty("xLocation")
     private String xLocation;

@@ -5,17 +5,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.List;
-
 @ToString
 @Getter
 @Setter
 @NoArgsConstructor
-public class LocationData {
+public class ConnectedPersonTO {
 
-    private String macAddress;
-    private String hashedMacAddress;
-    private Geofence geofence;
-    private Location location;
-
+    private String name;
+    private String surname;
+    private String gender;
+    private String age;
+    private String ticketNumber;
 }

@@ -11,6 +11,6 @@ import lombok.ToString;
 @NoArgsConstructor
 public class LocationDTO {
 
-    private LocationData locationData;
+    private LocationTO locationTO;
     private Boolean isNewPerson;
 }

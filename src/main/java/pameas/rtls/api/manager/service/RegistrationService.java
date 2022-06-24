@@ -6,10 +6,7 @@ import com.github.javafaker.Faker;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import pameas.rtls.api.manager.model.Device;
-import pameas.rtls.api.manager.model.DutySchedule;
-import pameas.rtls.api.manager.model.Passenger;
-import pameas.rtls.api.manager.model.Person;
+import pameas.rtls.api.manager.model.*;
 
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -17,6 +14,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import java.net.http.HttpResponse;
+import java.time.LocalDateTime;
 import java.util.*;
 import static pameas.rtls.api.manager.utils.Constants.DBPROXY_URL;
 
@@ -28,19 +26,23 @@ public class RegistrationService {
 
     public String addPerson() throws UnirestException, IOException, InterruptedException {
 
+        log.info("2222222222222222222 add person");
         String accessToken = TokenService.getAccessToken();
-        Person person = generatePerson();
+        PersonTO personTO = generatePerson();
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
-        String json = ow.writeValueAsString(person);
+        String json = ow.writeValueAsString(personTO);
+        log.info("aaaaaaaaaaaaaaaaaaaaaaa json :{}", json);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(DBPROXY_URL +"/addPerson/"))
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer "+accessToken)
                 .method("POST", HttpRequest.BodyPublishers.ofString(json))
                 .build();
+        log.info("bbbbbbbbbbbbbbbbbbbbb request :{}", request);
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-        return person.getIdentifier();
+        log.info("3333333333333333333333 response :{}", response);
+        return personTO.getIdentifier();
 
     }
 
@@ -49,6 +51,7 @@ public class RegistrationService {
         Device device = generateDevice(macAddress, hashedMacAddress, identifier);
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(device);
+        log.info("ssssssssssssssssssss device :{}", json);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(DBPROXY_URL +"/addDevice/"))
                 .header("Content-Type", "application/json")
@@ -58,35 +61,35 @@ public class RegistrationService {
         HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    private Person generatePerson(){
-        Person person = new Person();
+    private PersonTO generatePerson(){
+        PersonTO personTO = new PersonTO();
         Faker faker = new Faker();
-        person.setName(faker.name().firstName());
-        person.setSurname(faker.name().lastName());
-        person.setGender(generateGender());
-        person.setIdentifier(UUID.randomUUID().toString());
-        person.setAge(String.valueOf(generateAge()));
-        person.setConenctedPassengers(generatePassengers());
-        person.setTicketNumber(UUID.randomUUID().toString());
-        person.setEmail(person.getName() + person.getSurname() + "@email.com");
-        person.setRole("captain");
-        person.setIsCrew("true");
-        person.setMedical_condnitions("non");
-        person.setPreferred_language(Arrays.asList("EN", "ES"));
-        person.setEmbarkation_port("Piraeus");
-        person.setDisembarkation_port("Chania");
-        person.setCountry_of_residence("Greece");
-        person.setMobility_issues("none");
-        person.setPregnency_data("none");
-        person.setEmergency_duty("none");
-        person.setPostal_address(String.valueOf(random.ints(10000, 99999).findFirst().getAsInt()));
-        person.setEmergency_contact_details(faker.name().fullName());
-        person.setDuty_schedule(generateDutySchedule("2022-03-28T14:44:39.673Z", "2022-03-28T14:44:39.673Z"));
-        person.setIn_position("true");
-        person.setAssignment_status("ASSIGNED");
-        person.setAssigned_muster_station("reception");
+        personTO.setName(faker.name().firstName());
+        personTO.setSurname(faker.name().lastName());
+        personTO.setGender(generateGender());
+        personTO.setIdentifier(UUID.randomUUID().toString());
+        personTO.setAge(String.valueOf(generateAge()));
+        personTO.setConnectedPassengers(generatePassengers());
+        personTO.setTicketNumber(UUID.randomUUID().toString());
+        personTO.setEmail(personTO.getName() + personTO.getSurname() + "@email.com");
+        personTO.setRole("passenger");
+        personTO.setCrew(false);
+        personTO.setMedicalCondition("");
+        personTO.setPreferredLanguage(new String[]{"EN", "ES"});
+        personTO.setEmbarkationPort("Piraeus");
+        personTO.setDisembarkationPort("Chania");
+        personTO.setCountryOfResidence("Greece");
+        personTO.setMobilityIssues("");
+        personTO.setPrengencyData("");
+        personTO.setEmergencyDuty("");
+        personTO.setPostalAddress(String.valueOf(random.ints(10000, 99999).findFirst().getAsInt()));
+        personTO.setEmergencyContact(faker.name().fullName());
+        personTO.setDutySchedule(generateDutySchedule("2022-03-28T14:44:39.673Z", "2022-03-28T14:44:39.673Z"));
+        personTO.setInPosition(false);
+        personTO.setAssignmentStatus(Personalinfo.AssignmentStatus.UNASSIGNED);
+        personTO.setAssignedMusteringStation("7BG6");
 
-        return person;
+        return personTO;
     }
 
     private Device generateDevice(String macAddress, String hashedMacAddress, String identifier){
@@ -103,8 +106,10 @@ public class RegistrationService {
 
     private List<DutySchedule> generateDutySchedule(String start, String end){
         DutySchedule schedule = new DutySchedule();
-        schedule.setDutyStartDateTime(start);
-        schedule.setDutyEndDateTime(end);
+//        schedule.setDutyStartDateTime(start);
+//        schedule.setDutyEndDateTime(end);
+        schedule.setDutyStartDateTime(null);
+        schedule.setDutyEndDateTime(null);
 
         List<DutySchedule> dutySchedules = new ArrayList<>();
         dutySchedules.add(schedule);
@@ -122,8 +127,8 @@ public class RegistrationService {
         return random.ints(1, 80).findFirst().getAsInt();
     }
 
-    private List<Passenger> generatePassengers(){
-        List<Passenger> passengers = new ArrayList<>();
+    private List<ConnectedPersonTO> generatePassengers(){
+        List<ConnectedPersonTO> passengers = new ArrayList<>();
         return passengers;
     }
 }

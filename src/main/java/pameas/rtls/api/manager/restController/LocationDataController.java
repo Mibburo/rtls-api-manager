@@ -33,11 +33,12 @@ public class LocationDataController {
 
     @PostMapping("/saveLocationData")
     public void saveLocationData(@RequestBody LocationDTO locationDTO) throws UnirestException, IOException, InterruptedException {
+        log.info("11111111111111111 locationDto :{}", locationDTO);
         if(Boolean.TRUE.equals(locationDTO.getIsNewPerson())){
             String identifier = registrationService.addPerson();
-            registrationService.addDevice(locationDTO.getLocationData().getMacAddress(), locationDTO.getLocationData().getHashedMacAddress(), identifier);
+            registrationService.addDevice(locationDTO.getLocationTO().getMacAddress(), locationDTO.getLocationTO().getHashedMacAddress(), identifier);
         }
-        dbProxyService.saveLocationData(locationDTO.getLocationData());
+        dbProxyService.saveLocationData(locationDTO.getLocationTO());
     }
 
     @PostMapping("/getGeofence")
