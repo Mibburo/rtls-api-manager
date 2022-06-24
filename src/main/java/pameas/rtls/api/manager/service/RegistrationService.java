@@ -5,7 +5,10 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.github.javafaker.Faker;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import pameas.rtls.api.manager.model.*;
 
 import java.net.http.HttpClient;
@@ -33,15 +36,25 @@ public class RegistrationService {
 
         String json = ow.writeValueAsString(personTO);
         log.info("aaaaaaaaaaaaaaaaaaaaaaa json :{}", json);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(DBPROXY_URL +"/addPerson/"))
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer "+accessToken)
-                .method("POST", HttpRequest.BodyPublishers.ofString(json))
-                .build();
-        log.info("bbbbbbbbbbbbbbbbbbbbb request :{}", request);
-        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-        log.info("3333333333333333333333 response :{}", response);
+//        HttpRequest request = HttpRequest.newBuilder()
+//                .uri(URI.create(DBPROXY_URL +"/addPerson/"))
+//                .header("Content-Type", "application/json")
+//                .header("Authorization", "Bearer "+accessToken)
+//                .method("POST", HttpRequest.BodyPublishers.ofString(json))
+//                .build();
+//        log.info("bbbbbbbbbbbbbbbbbbbbb request :{}", request);
+//        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+//        log.info("3333333333333333333333 response :{}", response);
+
+        RestTemplate restTemplate = new RestTemplate();
+        org.springframework.http.HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization",  "Bearer "+accessToken);
+
+        HttpEntity<PersonTO> request = new HttpEntity<>(personTO, headers);
+        String response = restTemplate.postForObject(DBPROXY_URL +"/addPerson/", request, String.class);
+        log.info(response);
+
+
         return personTO.getIdentifier();
 
     }
@@ -75,7 +88,7 @@ public class RegistrationService {
         personTO.setRole("passenger");
         personTO.setCrew(false);
         personTO.setMedicalCondition("");
-        personTO.setPreferredLanguage(new String[]{"EN", "ES"});
+        personTO.setPreferredLanguage(new String[]{"EN"});
         personTO.setEmbarkationPort("Piraeus");
         personTO.setDisembarkationPort("Chania");
         personTO.setCountryOfResidence("Greece");
@@ -84,7 +97,7 @@ public class RegistrationService {
         personTO.setEmergencyDuty("");
         personTO.setPostalAddress(String.valueOf(random.ints(10000, 99999).findFirst().getAsInt()));
         personTO.setEmergencyContact(faker.name().fullName());
-        personTO.setDutySchedule(generateDutySchedule("2022-03-28T14:44:39.673Z", "2022-03-28T14:44:39.673Z"));
+        personTO.setDutySchedule(new ArrayList<>());
         personTO.setInPosition(false);
         personTO.setAssignmentStatus(Personalinfo.AssignmentStatus.UNASSIGNED);
         personTO.setAssignedMusteringStation("7BG6");
