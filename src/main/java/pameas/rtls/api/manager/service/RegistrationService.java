@@ -65,13 +65,31 @@ public class RegistrationService {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(device);
         log.info("ssssssssssssssssssss device :{}", json);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(DBPROXY_URL +"/addDevice/"))
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer "+accessToken)
-                .method("POST", HttpRequest.BodyPublishers.ofString(json))
-                .build();
-        HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+
+//        HttpRequest request = HttpRequest.newBuilder()
+//                .uri(URI.create(DBPROXY_URL +"/addDevice/"))
+//                .header("Content-Type", "application/json")
+//                .header("Authorization", "Bearer "+accessToken)
+//                .method("POST", HttpRequest.BodyPublishers.ofString(json))
+//                .build();
+//        HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        RestTemplate restTemplate = new RestTemplate();
+        org.springframework.http.HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization",  "Bearer "+accessToken);
+        AddDevicePersonTO devicePersonTO = new AddDevicePersonTO();
+        devicePersonTO.setIdentifier(device.getIdentifier());
+        devicePersonTO.setImei(device.getImei());
+        devicePersonTO.setMacAddress(device.getMacAddress());
+        devicePersonTO.setMsisdn(device.getMsisdn());
+        devicePersonTO.setHashedMacAddress(device.getHashedMacAddress());
+        devicePersonTO.setImsi(device.getImsi());
+        devicePersonTO.setMessagingAppClientId(device.getMessagingAppClientId());
+
+
+        HttpEntity<AddDevicePersonTO> request = new HttpEntity<>(devicePersonTO, headers);
+        String response = restTemplate.postForObject(DBPROXY_URL +"/addDevice/", request, String.class);
+        log.info(response);
     }
 
     private PersonTO generatePerson(){

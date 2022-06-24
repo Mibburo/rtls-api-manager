@@ -14,6 +14,7 @@ import pameas.rtls.api.manager.service.RegistrationService;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 @Slf4j
@@ -30,19 +31,24 @@ public class TestDBProxyIntegration {
 
         try {
             String identifier = registrationService.addPerson();
-            registrationService.addDevice("","", identifier);
+
+            TimeUnit.SECONDS.sleep(3);
+
             List<PameasPerson> persons = dbProxyService.getPassengerDetails();
+
+
            persons.forEach(pameasPerson -> {
 
                    try {
-                       registrationService.addDevice("12312","has123",pameasPerson.getId());
+                       registrationService.addDevice("12312","has123",pameasPerson.getPersonalInfo().getPersonalId());
                    } catch (UnirestException | IOException | InterruptedException e) {
                        log.error(e.getLocalizedMessage());
                    }
 
            });
 
-
+            TimeUnit.SECONDS.sleep(4);
+            persons = dbProxyService.getPassengerDetails();
             persons.forEach(pameasPerson -> {
                 String hashedMac = pameasPerson.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress();
                 String mac = pameasPerson.getNetworkInfo().getDeviceInfoList().get(0).getMacAddress();
