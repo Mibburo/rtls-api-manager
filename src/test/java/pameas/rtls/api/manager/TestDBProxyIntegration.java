@@ -40,7 +40,7 @@ public class TestDBProxyIntegration {
            persons.forEach(pameasPerson -> {
 
                    try {
-                       registrationService.addDevice("12312","has123",pameasPerson.getPersonalInfo().getPersonalId());
+                       registrationService.addDevice("78:D3:AD:62:57:43","94b98a622f7befa426b665dc6ee128c1",pameasPerson.getPersonalInfo().getPersonalId());
                    } catch (UnirestException | IOException | InterruptedException e) {
                        log.error(e.getLocalizedMessage());
                    }
@@ -52,6 +52,8 @@ public class TestDBProxyIntegration {
             persons.forEach(pameasPerson -> {
                 String hashedMac = pameasPerson.getNetworkInfo().getDeviceInfoList().get(0).getHashedMacAddress();
                 String mac = pameasPerson.getNetworkInfo().getDeviceInfoList().get(0).getMacAddress();
+                //String mac = "0D:FE:A3:56:C2:90";
+                //String hashedMac = "2c25f560bd8d75a1bff2ce8070718b1c";
                 LocationTO locationTO = new LocationTO();
                 UserLocationUnit userLocationUnit = new UserLocationUnit();
                 userLocationUnit.setXLocation("x");

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.github.javafaker.Faker;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -29,32 +30,15 @@ public class RegistrationService {
 
     public String addPerson() throws UnirestException, IOException, InterruptedException {
 
-        log.info("2222222222222222222 add person");
         String accessToken = TokenService.getAccessToken();
         PersonTO personTO = generatePerson();
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-
-        String json = ow.writeValueAsString(personTO);
-        log.info("aaaaaaaaaaaaaaaaaaaaaaa json :{}", json);
-//        HttpRequest request = HttpRequest.newBuilder()
-//                .uri(URI.create(DBPROXY_URL +"/addPerson/"))
-//                .header("Content-Type", "application/json")
-//                .header("Authorization", "Bearer "+accessToken)
-//                .method("POST", HttpRequest.BodyPublishers.ofString(json))
-//                .build();
-//        log.info("bbbbbbbbbbbbbbbbbbbbb request :{}", request);
-//        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-//        log.info("3333333333333333333333 response :{}", response);
 
         RestTemplate restTemplate = new RestTemplate();
         org.springframework.http.HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization",  "Bearer "+accessToken);
 
         HttpEntity<PersonTO> request = new HttpEntity<>(personTO, headers);
-        String response = restTemplate.postForObject(DBPROXY_URL +"/addPerson/", request, String.class);
-        log.info(response);
-
-
+        restTemplate.postForObject(DBPROXY_URL +"/addPerson/", request, String.class);
         return personTO.getIdentifier();
 
     }
@@ -62,18 +46,6 @@ public class RegistrationService {
     public void addDevice(String macAddress, String hashedMacAddress, String identifier) throws UnirestException, IOException, InterruptedException {
         String accessToken = TokenService.getAccessToken();
         Device device = generateDevice(macAddress, hashedMacAddress, identifier);
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(device);
-        log.info("ssssssssssssssssssss device :{}", json);
-
-
-//        HttpRequest request = HttpRequest.newBuilder()
-//                .uri(URI.create(DBPROXY_URL +"/addDevice/"))
-//                .header("Content-Type", "application/json")
-//                .header("Authorization", "Bearer "+accessToken)
-//                .method("POST", HttpRequest.BodyPublishers.ofString(json))
-//                .build();
-//        HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         RestTemplate restTemplate = new RestTemplate();
         org.springframework.http.HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization",  "Bearer "+accessToken);
@@ -88,8 +60,23 @@ public class RegistrationService {
 
 
         HttpEntity<AddDevicePersonTO> request = new HttpEntity<>(devicePersonTO, headers);
-        String response = restTemplate.postForObject(DBPROXY_URL +"/addDevice/", request, String.class);
-        log.info(response);
+        restTemplate.postForObject(DBPROXY_URL +"/addDevice/", request, String.class);
+    }
+
+    @Synchronized
+    public void prepareDevice(List<PameasPerson> persons, LocationDTO locationDTO) {
+
+        persons.forEach(pameasPerson -> {
+            if (pameasPerson.getNetworkInfo().getDeviceInfoList().size() == 0) {
+                try {
+                    addDevice(locationDTO.getLocationTO().getMacAddress(),
+                            locationDTO.getLocationTO().getHashedMacAddress(),
+                            pameasPerson.getPersonalInfo().getPersonalId());
+                } catch (UnirestException | IOException | InterruptedException e) {
+                    log.error(e.getLocalizedMessage());
+                }
+            }
+        });
     }
 
     private PersonTO generatePerson(){
