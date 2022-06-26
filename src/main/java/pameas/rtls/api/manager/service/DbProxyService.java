@@ -34,15 +34,13 @@ public class DbProxyService {
 
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(locationTO);
-        log.info("gggggggggggggggggg json :{}", json);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(DBPROXY_URL +"/addLocation"))
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer "+accessToken)
                 .method("POST", HttpRequest.BodyPublishers.ofString(json))
                 .build();
-        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-        log.info("ffffffffffffffffffffff response :{}", response);
+        HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
     }
 
 

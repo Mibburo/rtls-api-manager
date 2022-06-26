@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>pameas</groupId>
 	<artifactId>rtls.api.manager</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<name>rtls.api.manager</name>
 	<description>RTLS API manager for pameas</description>
 	<properties>
