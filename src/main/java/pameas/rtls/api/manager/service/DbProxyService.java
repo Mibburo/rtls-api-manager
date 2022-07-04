@@ -1,6 +1,7 @@
 package pameas.rtls.api.manager.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -32,7 +33,8 @@ public class DbProxyService {
     public void saveLocationData(LocationTO locationTO) throws UnirestException, IOException, InterruptedException {
         String accessToken = TokenService.getAccessToken();
 
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        ObjectWriter ow = new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(locationTO);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(DBPROXY_URL +"/addLocation"))
@@ -56,7 +58,8 @@ public class DbProxyService {
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> responseString = restTemplate.exchange(
                 uri, HttpMethod.GET, requestEntity, String.class);
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         try {
             return Arrays.asList(mapper.readValue(responseString.getBody(), PameasPerson[].class));

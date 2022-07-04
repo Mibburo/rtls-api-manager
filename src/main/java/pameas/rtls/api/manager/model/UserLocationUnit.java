@@ -1,5 +1,6 @@
 package pameas.rtls.api.manager.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ import static org.springframework.data.elasticsearch.annotations.FieldType.Text;
 @Getter
 @Setter
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserLocationUnit implements Serializable {
 
     @Field(type = Text)

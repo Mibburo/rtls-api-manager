@@ -1,5 +1,6 @@
 package pameas.rtls.api.manager.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,6 +15,7 @@ import static org.springframework.data.elasticsearch.annotations.FieldType.Text;
 @Getter
 @Setter
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserGeofenceUnit implements Serializable { //like location
 
     @Field(type = Text)

@@ -1,7 +1,5 @@
 package pameas.rtls.api.manager.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.github.javafaker.Faker;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import lombok.Synchronized;
@@ -12,13 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import pameas.rtls.api.manager.model.*;
 
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.io.IOException;
-import java.net.URI;
-
-import java.net.http.HttpResponse;
-import java.time.LocalDateTime;
 import java.util.*;
 import static pameas.rtls.api.manager.utils.Constants.DBPROXY_URL;
 
