@@ -2,7 +2,6 @@ package pameas.rtls.api.manager.service;
 
 import com.github.javafaker.Faker;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import pameas.rtls.api.manager.model.*;
 
-import java.io.IOException;
 import java.util.*;
 import static pameas.rtls.api.manager.utils.Constants.DBPROXY_URL;
 
@@ -20,98 +18,62 @@ import static pameas.rtls.api.manager.utils.Constants.DBPROXY_URL;
 public class RegistrationService {
     Random random = new Random();
 
-    public String addPerson() throws UnirestException, IOException, InterruptedException {
+    public String addPersonFull(String macAddress, String hashedMacAddress) throws UnirestException {
 
         String accessToken = TokenService.getAccessToken();
-        PersonTO personTO = generatePerson();
+        PersonFullTO personFull = generatePersonFull(macAddress, hashedMacAddress);
 
         RestTemplate restTemplate = new RestTemplate();
         org.springframework.http.HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization",  "Bearer "+accessToken);
 
-        HttpEntity<PersonTO> request = new HttpEntity<>(personTO, headers);
-        restTemplate.postForObject(DBPROXY_URL +"/addPerson/", request, String.class);
-        return personTO.getIdentifier();
+        HttpEntity<PersonFullTO> request = new HttpEntity<>(personFull, headers);
+        restTemplate.postForObject(DBPROXY_URL +"/addPerson2ES/", request, String.class);
+        return personFull.getIdentifier();
 
     }
 
-    public void addDevice(String macAddress, String hashedMacAddress, String identifier) throws UnirestException, IOException, InterruptedException {
-        String accessToken = TokenService.getAccessToken();
-        Device device = generateDevice(macAddress, hashedMacAddress, identifier);
-        RestTemplate restTemplate = new RestTemplate();
-        org.springframework.http.HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization",  "Bearer "+accessToken);
-        AddDevicePersonTO devicePersonTO = new AddDevicePersonTO();
-        devicePersonTO.setIdentifier(device.getIdentifier());
-        devicePersonTO.setImei(device.getImei());
-        devicePersonTO.setMacAddress(device.getMacAddress());
-        devicePersonTO.setMsisdn(device.getMsisdn());
-        devicePersonTO.setHashedMacAddress(device.getHashedMacAddress());
-        devicePersonTO.setImsi(device.getImsi());
-        devicePersonTO.setMessagingAppClientId(device.getMessagingAppClientId());
-
-
-        HttpEntity<AddDevicePersonTO> request = new HttpEntity<>(devicePersonTO, headers);
-        restTemplate.postForObject(DBPROXY_URL +"/addDevice/", request, String.class);
-    }
-
-    @Synchronized
-    public void prepareDevice(List<PameasPerson> persons, LocationDTO locationDTO) {
-
-        persons.forEach(pameasPerson -> {
-            if (pameasPerson.getNetworkInfo().getDeviceInfoList().size() == 0) {
-                try {
-                    addDevice(locationDTO.getLocationTO().getMacAddress(),
-                            locationDTO.getLocationTO().getHashedMacAddress(),
-                            pameasPerson.getPersonalInfo().getPersonalId());
-                } catch (UnirestException | IOException | InterruptedException e) {
-                    log.error(e.getLocalizedMessage());
-                }
-            }
-        });
-    }
-
-    private PersonTO generatePerson(){
-        PersonTO personTO = new PersonTO();
+    private PersonFullTO generatePersonFull(String macAddress, String hashedMacAddress){
+        PersonFullTO personFull = new PersonFullTO();
         Faker faker = new Faker();
-        personTO.setName(faker.name().firstName());
-        personTO.setSurname(faker.name().lastName());
-        personTO.setGender(generateGender());
-        personTO.setIdentifier(UUID.randomUUID().toString());
-        personTO.setAge(String.valueOf(generateAge()));
-        personTO.setConnectedPassengers(generatePassengers());
-        personTO.setTicketNumber(UUID.randomUUID().toString());
-        personTO.setEmail(personTO.getName() + personTO.getSurname() + "@email.com");
-        personTO.setRole("passenger");
-        personTO.setCrew(false);
-        personTO.setMedicalCondition("");
-        personTO.setPreferredLanguage(new String[]{"EN"});
-        personTO.setEmbarkationPort("Piraeus");
-        personTO.setDisembarkationPort("Chania");
-        personTO.setCountryOfResidence("Greece");
-        personTO.setMobilityIssues("");
-        personTO.setPrengencyData("");
-        personTO.setEmergencyDuty("");
-        personTO.setPostalAddress(String.valueOf(random.ints(10000, 99999).findFirst().getAsInt()));
-        personTO.setEmergencyContact(faker.name().fullName());
-        personTO.setDutySchedule(new ArrayList<>());
-        personTO.setInPosition(false);
-        personTO.setAssignmentStatus(Personalinfo.AssignmentStatus.UNASSIGNED);
-        personTO.setAssignedMusteringStation("7BG6");
-
-        return personTO;
+        personFull.setName(faker.name().firstName());
+        personFull.setSurname(faker.name().lastName());
+        personFull.setGender(generateGender());
+        personFull.setIdentifier(UUID.randomUUID().toString());
+        personFull.setAge(String.valueOf(generateAge()));
+        personFull.setConnectedPassengers(generatePassengers());
+        personFull.setTicketNumber(UUID.randomUUID().toString());
+        personFull.setEmail(personFull.getName() + personFull.getSurname() + "@email.com");
+        personFull.setRole("passenger");
+        personFull.setCrew(false);
+        personFull.setMedicalCondition("");
+        personFull.setPreferredLanguage(new String[]{"EN"});
+        personFull.setEmbarkationPort("Piraeus");
+        personFull.setDisembarkationPort("Chania");
+        personFull.setCountryOfResidence("Greece");
+        personFull.setMobilityIssues("");
+        personFull.setPrengencyData("");
+        personFull.setEmergencyDuty("");
+        personFull.setPostalAddress(String.valueOf(random.ints(10000, 99999).findFirst().getAsInt()));
+        personFull.setEmergencyContact(faker.name().fullName());
+        personFull.setDutySchedule(new ArrayList<>());
+        personFull.setInPosition(false);
+        personFull.setAssignmentStatus(Personalinfo.AssignmentStatus.UNASSIGNED);
+        personFull.setAssignedMusteringStation("7BG6");
+        personFull.setMessagingAppClientId(hashedMacAddress);
+        personFull.setDeviceInfoList(generateDeviceInfo(macAddress, hashedMacAddress));
+        return personFull;
     }
 
-    private Device generateDevice(String macAddress, String hashedMacAddress, String identifier){
-        Device device = new Device();
-        device.setIdentifier(identifier);
-        device.setMacAddress(macAddress);
-        device.setHashedMacAddress(hashedMacAddress);
-        device.setImsi(String.valueOf(Math.random() * 100000000000000L).replace(".", ""));
-        device.setImei(String.valueOf(Math.random() * 100000000000000L).replace(".", ""));
-        device.setMsisdn("MSISDN");
-        device.setMessagingAppClientId(hashedMacAddress);
-        return device;
+    private List<DeviceInfo> generateDeviceInfo(String macAddress, String hashedMacAddress){
+        DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.setMacAddress(macAddress);
+        deviceInfo.setHashedMacAddress(hashedMacAddress);
+        deviceInfo.setImsi(String.valueOf(Math.random() * 100000000000000L).replace(".", ""));
+        deviceInfo.setImei(String.valueOf(Math.random() * 100000000000000L).replace(".", ""));
+        deviceInfo.setMsisdn("MSISDN");
+
+        return new ArrayList<>(Arrays.asList(deviceInfo));
     }
 
     private List<DutySchedule> generateDutySchedule(String start, String end){

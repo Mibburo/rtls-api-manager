@@ -30,14 +30,14 @@ public class TestDBProxyIntegration {
     public void testRegistration(){
 
         try {
-            String identifier = registrationService.addPerson();
+            //String identifier = registrationService.addPerson();
 
             TimeUnit.SECONDS.sleep(3);
 
             List<PameasPerson> persons = dbProxyService.getPassengerDetails();
 
 
-           persons.forEach(pameasPerson -> {
+           /*persons.forEach(pameasPerson -> {
 
                    try {
                        registrationService.addDevice("78:D3:AD:62:57:43","94b98a622f7befa426b665dc6ee128c1",pameasPerson.getPersonalInfo().getPersonalId());
@@ -45,7 +45,7 @@ public class TestDBProxyIntegration {
                        log.error(e.getLocalizedMessage());
                    }
 
-           });
+           });*/
 
             TimeUnit.SECONDS.sleep(4);
             persons = dbProxyService.getPassengerDetails();
@@ -79,7 +79,7 @@ public class TestDBProxyIntegration {
 
             });
 
-        } catch (UnirestException | IOException | InterruptedException e) {
+        } catch (UnirestException | InterruptedException e) {
            log.error(e.getLocalizedMessage());
         }
     }

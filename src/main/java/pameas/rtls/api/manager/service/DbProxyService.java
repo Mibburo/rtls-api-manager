@@ -47,8 +47,7 @@ public class DbProxyService {
 
 
     public List<PameasPerson> getPassengerDetails() throws UnirestException {
-        String uri
-                = URI.create(DBPROXY_URL) + "/getPassengers";
+        String uri = URI.create(DBPROXY_URL) + "/getPassengers";
 
         HttpHeaders headers = new HttpHeaders();
         String bearer = "Bearer " +  TokenService.getAccessToken();

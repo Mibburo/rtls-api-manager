@@ -1,7 +1,6 @@
 package pameas.rtls.api.manager.restController;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
-import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,20 +35,15 @@ public class LocationDataController {
     }
 
     @PostMapping("/addPersonAndDevice")
-    @Synchronized
-    public void addPersonAndDevice(@RequestBody LocationDTO locationDTO) throws UnirestException, IOException, InterruptedException {
+    public void addPersonAndDevice(@RequestBody LocationDTO locationDTO) throws UnirestException {
         if (Boolean.TRUE.equals(locationDTO.getIsNewPerson())) {
-            registrationService.addPerson();
-            Thread.sleep(1000);
-
-            List<PameasPerson> persons = dbProxyService.getPassengerDetails();
-            registrationService.prepareDevice(persons, locationDTO);
+            registrationService.addPersonFull(locationDTO.getLocationTO().getMacAddress(),
+                    locationDTO.getLocationTO().getHashedMacAddress());
         }
     }
 
     @PostMapping("/saveLocationData")
-    public void saveLocationData(@RequestBody LocationDTO locationDTO) throws UnirestException, IOException, InterruptedException {
-
+    public void saveLocationData(@RequestBody LocationDTO locationDTO) throws UnirestException {
         List<PameasPerson> persons = dbProxyService.getPassengerDetails();
         persons.forEach(pameasPerson -> {
             try {
@@ -64,7 +58,6 @@ public class LocationDataController {
                 log.error(e.getMessage());
             }
         });
-
     }
 
     @PostMapping("/getGeofence")
