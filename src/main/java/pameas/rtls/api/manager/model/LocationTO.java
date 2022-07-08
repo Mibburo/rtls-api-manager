@@ -15,5 +15,6 @@ public class LocationTO {
     private String hashedMacAddress;
     private UserGeofenceUnit geofence;
     private UserLocationUnit location;
-
+    private String saturation;
+    private String heartBeat;
 }

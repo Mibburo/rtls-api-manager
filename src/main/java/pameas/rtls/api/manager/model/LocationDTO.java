@@ -13,4 +13,8 @@ public class LocationDTO {
 
     private LocationTO locationTO;
     private Boolean isNewPerson;
+    private String oxygenSaturation;
+    private String heartBeat;
+    private Boolean hasOxygenProblem;
+    private Boolean hasHeartProblem;
 }

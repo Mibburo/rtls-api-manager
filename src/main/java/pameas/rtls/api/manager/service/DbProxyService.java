@@ -37,7 +37,7 @@ public class DbProxyService {
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(locationTO);
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(DBPROXY_URL +"/addLocation"))
+                .uri(URI.create(DBPROXY_URL +"/addLocationAndHealth"))
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer "+accessToken)
                 .method("POST", HttpRequest.BodyPublishers.ofString(json))
