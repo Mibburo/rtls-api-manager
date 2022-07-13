@@ -43,21 +43,12 @@ public class LocationDataController {
     }
 
     @PostMapping("/saveLocationData")
-    public void saveLocationData(@RequestBody LocationDTO locationDTO) throws UnirestException {
-        List<PameasPerson> persons = dbProxyService.getPassengerDetails();
-        persons.forEach(pameasPerson -> {
-            try {
-                Optional<DeviceInfo> device = pameasPerson.getNetworkInfo().getDeviceInfoList().stream()
-                        .filter(x -> x.getMacAddress().equals(locationDTO.getLocationTO().getMacAddress())).findAny();
-                if(device.isPresent()){
-                    locationDTO.getLocationTO().setHashedMacAddress(device.get().getHashedMacAddress());
-                    dbProxyService.saveLocationData(locationDTO.getLocationTO());
-                }
-
-            } catch (UnirestException | IOException | InterruptedException e) {
-                log.error(e.getMessage());
-            }
-        });
+    public void saveLocationData(@RequestBody LocationDTO locationDTO) {
+        try {
+            dbProxyService.saveLocationData(locationDTO.getLocationTO());
+        } catch (UnirestException | IOException | InterruptedException e) {
+            log.error(e.getMessage());
+        }
     }
 
     @PostMapping("/getGeofence")
