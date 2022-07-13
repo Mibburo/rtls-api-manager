@@ -8,4 +8,6 @@ services:
     ports:
       - 7010:7010
     environment:
+      - LOCATION_SERVICE_URI=http://dss.aegean.gr:7011
+      - DBPROXY_URI=http://dss.aegean.gr:8090
       - KEY=secret
