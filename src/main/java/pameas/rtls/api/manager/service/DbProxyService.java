@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import pameas.rtls.api.manager.model.LocationTO;
@@ -62,6 +59,31 @@ public class DbProxyService {
 
         try {
             return Arrays.asList(mapper.readValue(responseString.getBody(), PameasPerson[].class));
+        } catch (JsonProcessingException e) {
+            log.error(e.getMessage());
+        }
+
+        return null;
+    }
+
+    public List<PameasPerson> getAll() throws UnirestException {
+
+        String uri = URI.create(DBPROXY_URL) + "/getAll";
+
+        HttpHeaders headers = new HttpHeaders();
+        String bearer = "Bearer " +  TokenService.getAccessToken();
+        headers.set("Authorization", bearer);
+
+        HttpEntity request = new HttpEntity(headers);
+        RestTemplate restTemplate = new RestTemplate();
+
+        ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
+
+        ObjectMapper mapper = new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        try {
+            return Arrays.asList(mapper.readValue(response.getBody(), PameasPerson[].class));
         } catch (JsonProcessingException e) {
             log.error(e.getMessage());
         }

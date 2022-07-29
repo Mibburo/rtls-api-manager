@@ -84,4 +84,10 @@ public class TestDBProxyIntegration {
         }
     }
 
+    @Test
+    public void testGetAll() throws UnirestException {
+        List<PameasPerson> persons = dbProxyService.getAll();
+        log.info("persons :{}", persons);
+    }
+
 }
